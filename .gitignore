@@ -1,0 +1,22 @@
+# Build files
+bin/
+obj/
+publish/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# VS Code
+.vscode/
+
+# Generated reports
+Reports/
+
+# Logs
+*.log
+
+# Environment / secrets
+.env
+*.env
