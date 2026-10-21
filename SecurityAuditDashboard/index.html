@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Security Audit Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f4f7fb;
+            color: #172033;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 230px;
+            background: #12263a;
+            color: white;
+            padding: 25px 18px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 45px;
+        }
+
+        .logo span {
+            display: block;
+            font-size: 13px;
+            color: #9fb0c2;
+            margin-top: 5px;
+            font-weight: 400;
+        }
+
+        .nav-item {
+            padding: 13px 15px;
+            margin-bottom: 8px;
+            border-radius: 7px;
+            cursor: pointer;
+            color: #d8e1ea;
+        }
+
+        .nav-item.active {
+            background: #1677ff;
+            color: white;
+        }
+
+        .nav-item:hover {
+            background: #1d3c59;
+        }
+
+        /* MAIN CONTENT */
+
+        .main {
+            flex: 1;
+            padding: 35px;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+        }
+
+        .header p {
+            color: #6b7280;
+            margin-top: 7px;
+        }
+
+        /* CARDS */
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .card-title {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .card-value {
+            font-size: 30px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        .blue {
+            color: #1677ff;
+        }
+
+        .green {
+            color: #168a4a;
+        }
+
+        .orange {
+            color: #d97706;
+        }
+
+        .red {
+            color: #c62828;
+        }
+
+        /* GRID */
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .panel {
+            background: white;
+            padding: 22px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .panel h2 {
+            font-size: 18px;
+            margin-bottom: 18px;
+        }
+
+        /* TABLE */
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            color: #6b7280;
+            font-size: 13px;
+            padding: 12px 10px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        td {
+            padding: 14px 10px;
+            border-bottom: 1px solid #edf0f3;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .low {
+            background: #e8f5ed;
+            color: #168a4a;
+        }
+
+        .medium {
+            background: #fff3df;
+            color: #d97706;
+        }
+
+        .high {
+            background: #fdeaea;
+            color: #c62828;
+        }
+
+        /* FINDINGS */
+
+        .finding {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid #edf0f3;
+        }
+
+        .finding-name {
+            font-size: 14px;
+        }
+
+        .finding-count {
+            font-weight: 700;
+            color: #c62828;
+        }
+
+        .score-bar {
+            width: 100%;
+            height: 9px;
+            background: #e5e7eb;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: #1677ff;
+            border-radius: 20px;
+        }
+
+        .footer-note {
+            color: #9ca3af;
+            font-size: 12px;
+            margin-top: 30px;
+        }
+
+        @media(max-width: 900px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+
+    <div class="sidebar">
+
+        <div class="logo">
+            🛡 Windows Security Audit
+            <span>Centralized Dashboard</span>
+        </div>
+
+        <div class="nav-item active">
+            Dashboard
+        </div>
+
+        <div class="nav-item">
+            Endpoints
+        </div>
+
+        <div class="nav-item">
+            Findings
+        </div>
+
+        <div class="nav-item">
+            Reports
+        </div>
+
+    </div>
+
+
+    <!-- MAIN -->
+
+    <div class="main">
+
+        <div class="header">
+            <h1>Security Overview</h1>
+            <p>Centralized Windows endpoint audit results</p>
+        </div>
+
+
+        <!-- SUMMARY CARDS -->
+
+        <div class="cards">
+
+            <div class="card">
+                <div class="card-title">
+                    Endpoints Audited
+                </div>
+
+                <div class="card-value blue">
+                    12
+                </div>
+            </div>
+
+
+            <div class="card">
+                <div class="card-title">
+                    Average Security Score
+                </div>
+
+                <div class="card-value">
+                    78/100
+                </div>
+            </div>
+
+
+            <div class="card">
+                <div class="card-title">
+                    Total Warnings
+                </div>
+
+                <div class="card-value orange">
+                    17
+                </div>
+            </div>
+
+
+            <div class="card">
+                <div class="card-title">
+                    Critical Findings
+                </div>
+
+                <div class="card-value red">
+                    6
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="dashboard-grid">
+
+            <!-- ENDPOINT TABLE -->
+
+            <div class="panel">
+
+                <h2>Endpoint Security Status</h2>
+
+                <table>
+
+                    <thead>
+                    <tr>
+                        <th>Computer</th>
+                        <th>Score</th>
+                        <th>Risk</th>
+                        <th>Last Audit</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    <tr>
+                        <td>DESKTOP-URQN41A</td>
+
+                        <td>
+                            84/100
+
+                            <div class="score-bar">
+                                <div
+                                    class="score-fill"
+                                    style="width:84%">
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+                            <span class="status medium">
+                                Medium
+                            </span>
+                        </td>
+
+                        <td>
+                            30 Sep 2026
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td>PC-FINANCE-01</td>
+
+                        <td>
+                            92/100
+
+                            <div class="score-bar">
+                                <div
+                                    class="score-fill"
+                                    style="width:92%">
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+                            <span class="status low">
+                                Low
+                            </span>
+                        </td>
+
+                        <td>
+                            30 Sep 2026
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td>PC-HR-02</td>
+
+                        <td>
+                            65/100
+
+                            <div class="score-bar">
+                                <div
+                                    class="score-fill"
+                                    style="width:65%">
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+                            <span class="status high">
+                                High
+                            </span>
+                        </td>
+
+                        <td>
+                            29 Sep 2026
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td>PC-ADMIN-03</td>
+
+                        <td>
+                            76/100
+
+                            <div class="score-bar">
+                                <div
+                                    class="score-fill"
+                                    style="width:76%">
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+                            <span class="status medium">
+                                Medium
+                            </span>
+                        </td>
+
+                        <td>
+                            28 Sep 2026
+                        </td>
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- FINDINGS -->
+
+            <div class="panel">
+
+                <h2>Common Security Findings</h2>
+
+
+                <div class="finding">
+                    <div class="finding-name">
+                        Defender Disabled
+                    </div>
+
+                    <div class="finding-count">
+                        5
+                    </div>
+                </div>
+
+
+                <div class="finding">
+                    <div class="finding-name">
+                        PowerShell Logging Disabled
+                    </div>
+
+                    <div class="finding-count">
+                        4
+                    </div>
+                </div>
+
+
+                <div class="finding">
+                    <div class="finding-name">
+                        Weak Password Policy
+                    </div>
+
+                    <div class="finding-count">
+                        3
+                    </div>
+                </div>
+
+
+                <div class="finding">
+                    <div class="finding-name">
+                        BitLocker Disabled
+                    </div>
+
+                    <div class="finding-count">
+                        2
+                    </div>
+                </div>
+
+
+                <div class="finding">
+                    <div class="finding-name">
+                        SMBv1 Enabled
+                    </div>
+
+                    <div class="finding-count">
+                        1
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-note">
+            Automated IT Security Audit System for Windows Endpoints
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
